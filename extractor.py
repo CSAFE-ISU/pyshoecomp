@@ -1,0 +1,145 @@
+# -*- coding: utf-8 -*-
+from typing import Optional, Any
+import numpy as np
+from numpy.typing import ArrayLike
+
+
+from matplotlib import pyplot as plt
+
+# mixing opencv and skimage may be NASTY
+# but let's do it for now
+from skimage.feature import SIFT, ORB, CENSURE, corner_fast, corner_peaks
+import cv2
+
+def uniqueify(f):
+    def g(*args, **kwargs):
+        res = f(*args, **kwargs)
+        ans = np.unique(res, axis=0)
+        return ans
+    return g
+
+class Extractor:
+    _extname_ = "<none>"
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, img: ArrayLike) -> ArrayLike:
+        """
+        receive an image (grayscale) => return interest points
+        interest points must be (row,column)
+        """
+        raise NotImplementedError("abstract base class")
+
+    def plot_points_on_axis(
+        self, axis: Any, img: ArrayLike, points: Optional[ArrayLike] = None
+    ):
+        if points is None:
+            points = self(img)
+        axis.imshow(img, cmap="gray")
+        # remember you get points in row/col format, so swap for x/y
+        axis.scatter(x=points[:, 1], y=points[:, 0], c="red")
+        axis.set_xticks([])
+        axis.set_yticks([])
+        return axis
+
+    def show_points(self, img: ArrayLike, points: Optional[ArrayLike] = None):
+        fig, ax = plt.subplots()
+        self.plot_points_on_axis(ax, img, points)
+        plt.show()
+
+
+class SIFTExtractor(Extractor):
+    _extname_ = "SIFT"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.etor = SIFT(upsampling=1, sigma_in=0)
+
+    @uniqueify
+    def __call__(self, img):
+        self.etor.detect(img)
+        return self.etor.keypoints
+
+
+class ORBExtractor(Extractor):
+    _extname_ = "ORB"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.etor = ORB(fast_threshold=0.7)
+
+    @uniqueify
+    def __call__(self, img):
+        self.etor.detect(img)
+        return self.etor.keypoints
+
+
+class CENSUREExtractor(Extractor):
+    _extname_ = "CENSURE"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.etor = CENSURE()
+
+    @uniqueify
+    def __call__(self, img):
+        self.etor.detect(img)
+        return self.etor.keypoints
+
+
+class TomasiExtractor(Extractor):
+    _extname_ = "Shi-Tomasi"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params = dict(maxCorners=500, qualityLevel=0.2, minDistance=10)
+
+    @uniqueify
+    def __call__(self, img):
+        corners = cv2.goodFeaturesToTrack(image=img, **self.params)
+        # corners are x,y format, so convert to row/column
+        return corners[:, 0, ::-1]
+
+
+class KAZEExtractor(Extractor):
+    _extname_ = "KAZE"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.etor = cv2.KAZE_create(threshold=0.03)
+
+    @uniqueify
+    def __call__(self, img):
+        keypoints = self.etor.detect(img)
+        keypoints = np.array([k.pt[::-1] for k in keypoints])
+        return keypoints
+
+
+class AKAZEExtractor(Extractor):
+    _extname_ = "AKAZE"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.etor = cv2.AKAZE_create(threshold=0.03)
+
+    @uniqueify
+    def __call__(self, img):
+        keypoints = self.etor.detect(img)
+        keypoints = np.array([k.pt[::-1] for k in keypoints])
+        return keypoints
+
+class FastExtractor(Extractor):
+    _extname_ = "FAST"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.peak_params = dict(min_distance=7)
+        self.params = dict(threshold=0.075)
+
+    @uniqueify
+    def __call__(self, img):
+        keypoints = corner_peaks(corner_fast(img, **self.params), **self.peak_params)
+        return keypoints
+
+EXTRACTOR_MAP = {x._extname_: x for x in Extractor.__subclasses__()}
