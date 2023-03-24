@@ -76,7 +76,7 @@ def driver(num_samples=100, use_farnon=True, target="./inputs.csv"):
             dset[sub].append(name)
 
     res = []
-    for x in subtypes[1:]:
+    for x in subtypes[:-1]:
         res += get_sample_list(
             num_samples, dset[x], dset["K"], match=True, flip_close=False
         )
