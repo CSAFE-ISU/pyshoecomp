@@ -109,6 +109,8 @@ def output_header(output):
         "close",
         "blur",
         "extractor",
+        "q_pts",
+        "k_pts",
         "corresponder",
         "alignment",
         "metric",

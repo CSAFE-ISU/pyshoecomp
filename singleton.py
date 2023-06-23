@@ -89,6 +89,8 @@ def runner(
                     "close": close,
                     "blur": blur,
                     "extractor": e,
+                    "q_pts":len(q.points),
+                    "k_pts":len(k.points),
                     "corresponder": c,
                     "alignment": a,
                     "metric": s,
