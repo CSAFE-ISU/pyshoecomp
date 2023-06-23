@@ -66,7 +66,7 @@ class OverlapPercentage(ScoringMethod):
         self.epsilon = epsilon
 
     def __call__(self):
-        if len(self.Q.points) <= 3:
+        if len(self.Q.points) <= 10:
             return 0
         Q_pts = self.Q.points[:, ::-1]
         K_pts = self.K.points[:, ::-1]
@@ -74,6 +74,9 @@ class OverlapPercentage(ScoringMethod):
         indices = skfeat.match_descriptors(
             Q_pts, K_pts_in_Q_space, metric="euclidean", max_distance=self.epsilon
         )
+
+        if len(indices) <= 10:
+            return 0
 
         Q_close = Q_pts[indices[:, 0]]
         K_close = K_pts_in_Q_space[indices[:, 1]]
