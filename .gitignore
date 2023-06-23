@@ -1,6 +1,9 @@
 # ignore simulation results
+r2/*
 results/*
 report/*
+report
+*.db
 *.csv
 *.ipynb
 *.xlsx
