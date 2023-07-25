@@ -45,17 +45,7 @@ def check_csv(x):
 
 
 def singleton(
-    cmpid,
-    q_path,
-    k_path,
-    is_match,
-    flip_k,
-    eps1,
-    eps2,
-    alpha,
-    etor,
-    aligner,
-    output,
+    cmpid, q_path, k_path, is_match, flip_k, eps1, eps2, alpha, etor, aligner, output
 ):
     try:
         proc = subprocess.Popen(
@@ -81,6 +71,8 @@ def singleton(
                 "--aligner",
                 str(aligner),
                 "--save",
+                "--output",
+                str(output),
             ],
             cwd="./",
             stdout=subprocess.PIPE,
@@ -99,7 +91,7 @@ def singleton(
         return False
 
 
-def runner(filelist, eps1, eps2, alpha, etor, aligner, output):
+def runner(filelist, eps1, eps2, alpha, etor, aligner):
     results = []
     with joblib.Parallel(n_jobs=4, backend="loky") as parallel:
         results = parallel(
@@ -114,6 +106,7 @@ def runner(filelist, eps1, eps2, alpha, etor, aligner, output):
                 alpha=alpha,
                 etor=etor,
                 aligner=aligner,
+                output=output,
             )
             for x in filelist
         )
@@ -145,11 +138,20 @@ def main():
         help="tolerance value for removing neighbor points",
     )
     parser.add_argument(
-        "-e", "--etor", default="AKAZE", help="type of extractor", type=etor_check
+        "-e",
+        "--etor",
+        default="AKAZE",
+        help="type of extractor",
+        type=str,
     )
     parser.add_argument(
-        "-a", "--aligner", default="kabsch", help="type of aligner", type=aligner_check
+        "-a",
+        "--aligner",
+        default="kabsch",
+        help="type of aligner",
+        type=str,
     )
+    parser.add_argument("-o", "--output", default="./", help="output folder")
     d = parser.parse_args()
     result = runner(
         filelist=d.infile,

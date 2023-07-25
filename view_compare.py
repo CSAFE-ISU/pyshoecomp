@@ -56,7 +56,7 @@ def show_text(ax, base):
         # print(txt)
 
 
-def show_overall(cmpid, base, save):
+def show_overall(cmpid, base, save, output):
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 6), sharex=True, sharey=True)
     Q = base["q"]
     K = base["k"]
@@ -90,8 +90,9 @@ def show_overall(cmpid, base, save):
     fig.suptitle(title)
     fig.tight_layout()
 
+    int_cmpid = int(cmpid)
     if save:
-        fig.savefig(f"cmp_{cmpid}.pdf", format="pdf")
+        fig.savefig(f"{output}/cmp_{int_cmpid:05d}.pdf", format="pdf")
     else:
         plt.show()
 
@@ -108,6 +109,7 @@ def runner(
     epsilon2,
     alpha,
     save,
+    output,
 ):
     k = ImageDesc.from_file(
         k_path,
@@ -168,7 +170,7 @@ def runner(
 
     base["scores"] = result
     # print(base)
-    show_overall(cmpid=cmpid, base=base, save=save)
+    show_overall(cmpid=cmpid, base=base, save=save, output=output)
 
 
 def main():
@@ -217,6 +219,7 @@ def main():
         "-a", "--aligner", default="kabsch", help="type of aligner", type=aligner_check
     )
     parser.add_argument("--save", dest="should_save", action="store_true")
+    parser.add_argument("-o", "--output", default="./", help="output folder")
     parser.set_defaults(is_match=True, flip_k=False, should_save=False)
     d = parser.parse_args()
     result = runner(
@@ -231,6 +234,7 @@ def main():
         etor=d.etor,
         aligner=d.aligner,
         save=d.should_save,
+        output=d.output,
     )
 
 
