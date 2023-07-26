@@ -66,12 +66,11 @@ def show_overall(cmpid, base, save, output):
     is_match = base["is_match"]
     for i, desc in enumerate([Q, K]):
         axs[i].imshow(desc.img, cmap="gray")
-        continue
         axs[i].scatter(
             x=desc.points[:, 1],
             y=desc.points[:, 0],
-            c="red",
-            s=5,
+            c="yellow",
+            s=3,
             marker="x",
             alpha=1,
         )
