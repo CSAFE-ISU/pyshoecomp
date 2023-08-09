@@ -52,7 +52,23 @@ class ESYConfig:
 
 
 class SC1Config:
-    internal = {"a": "a"}
+    internal = {
+        # related to reading in Q images
+        "img_Q0": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False),
+        "img_Q1": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False),
+        # related to reading in K images
+        "img_K0": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=True),
+        "img_K1": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False),
+        # related to interest points
+        "SIFT": dict(upsampling=1, sigma_in=0),
+        "ORB": dict(fast_threshold=0.075),
+        "CENSURE": dict(),
+        "Shi-Tomasi": dict(maxCorners=500, qualityLevel=0.2, min_distance=10),
+        "KAZE": dict(threshold=0.03),
+        "AKAZE": dict(threshold=0.03),
+        "FAST_peaks": dict(min_distance=7),
+        "FAST_params": dict(threshold=0.075),
+    }
 
     @staticmethod
     def get_params(name):

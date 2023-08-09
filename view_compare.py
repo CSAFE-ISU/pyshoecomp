@@ -110,8 +110,8 @@ def runner(
     save,
     output,
 ):
-    k = ImageDesc.from_file(k_path, is_match=True, is_k=True)
-    q = ImageDesc.from_file(q_path, is_match=True, is_k=False)
+    k = ImageDesc.from_file(k_path, is_match=is_match, is_k=True)
+    q = ImageDesc.from_file(q_path, is_match=is_match, is_k=False)
     result = []
     scor = None
 
