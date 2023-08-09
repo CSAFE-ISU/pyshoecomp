@@ -3,7 +3,6 @@ from extractor import EXTRACTOR_MAP
 from neuralnet import avg_ncc, avg_poc
 
 import warnings
-import matplotlib.pyplot as plt
 import skimage.transform as sktrans
 import skimage.feature as skfeat
 import numpy as np

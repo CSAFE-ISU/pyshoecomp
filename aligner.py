@@ -3,7 +3,6 @@ from extractor import EXTRACTOR_MAP
 from corresponder import CliqueMatcher
 
 import warnings
-import matplotlib.pyplot as plt
 import skimage.transform as sktrans
 import numpy as np
 import cliquematch
@@ -42,38 +41,6 @@ class AlignFunction:
             mode="constant",
             cval=1,
         )
-
-    def show_alignment(self, Q, K, corr, *args, **params):
-        map_func = params.get(
-            "map_func", self._get_mapping(Q, K, corr, *args, **params)
-        )
-
-        fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
-        for i, desc in enumerate([Q, K]):
-            axs[i].imshow(desc.img, cmap="gray")
-            axs[i].scatter(
-                x=desc.points[:, 1],
-                y=desc.points[:, 0],
-                c="red",
-                s=3,
-                marker="x",
-                alpha=0.5,
-            )
-        axs[0].scatter(
-            x=corr["Q"][:, 1], y=corr["Q"][:, 0], c="green", marker="o", s=5, alpha=1
-        )
-        axs[1].scatter(
-            x=corr["K"][:, 1], y=corr["K"][:, 0], c="green", marker="o", s=5, alpha=1
-        )
-        Q.aligned_img = self.align_Q_to_K(Q, K, corr, map_func=map_func)
-        axs[2].imshow(Q.aligned_img, cmap="gray")
-        axs[2].imshow(K.img, cmap="Reds_r", alpha=0.3)
-
-        axs[0].set_title("Q")
-        axs[1].set_title("K")
-        axs[2].set_title("overlay K on transformed Q")
-        fig.suptitle(f"alignment via {self._extname_}")
-        plt.show()
 
 
 class DummyMapping(AlignFunction):
@@ -189,7 +156,8 @@ def main():
     )
     corr = get_QK_correspondence(q, k, extractor_name="SIFT", epsilon=1.5)
     mapping = get_alignment_function(q, k, corr, method_name="polynomial3")
-    mapping.show_alignment(q, k, corr)
+    print(corr)
+    print(mapping)
 
 
 if __name__ == "__main__":

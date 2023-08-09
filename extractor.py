@@ -3,9 +3,6 @@ from typing import Optional, Any
 import numpy as np
 from numpy.typing import ArrayLike
 
-
-from matplotlib import pyplot as plt
-
 # mixing opencv and skimage may be NASTY
 # but let's do it for now
 from skimage.feature import SIFT, ORB, CENSURE, corner_fast, corner_peaks
@@ -33,23 +30,6 @@ class Extractor:
         interest points must be (row,column)
         """
         raise NotImplementedError("abstract base class")
-
-    def plot_points_on_axis(
-        self, axis: Any, img: ArrayLike, points: Optional[ArrayLike] = None
-    ):
-        if points is None:
-            points = self(img)
-        axis.imshow(img, cmap="gray")
-        # remember you get points in row / col format, so swap for x / y
-        axis.scatter(x=points[:, 1], y=points[:, 0], c="red")
-        axis.set_xticks([])
-        axis.set_yticks([])
-        return axis
-
-    def show_points(self, img: ArrayLike, points: Optional[ArrayLike] = None):
-        fig, ax = plt.subplots()
-        self.plot_points_on_axis(ax, img, points)
-        plt.show()
 
 
 class SIFTExtractor(Extractor):
