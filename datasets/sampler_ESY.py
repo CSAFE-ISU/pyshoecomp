@@ -56,16 +56,50 @@ def get_sample_list(num_samples, Qnames, Knames, match=True, flip_close=True):
             "Q": reconstruct(Qdat),
             "K": reconstruct(Kdat),
             "match": match,
-            "close": flip_close,
-            "flip_k": Qdat["foot"] != Kdat["foot"],
+            "config":"ESY",
+            "blur": Qdat["blur"],
+        }
+        answer.append(row)
+    return answer
+
+def get_sample_list_nr(num_samples, Qnames, Knames, match=True, flip_close=True):
+    answer = []
+    for i in range(len(Qnames)):
+        Q = Qnames[i]
+        Qdat = deconstruct(Q)
+        Kdat = dict(**Qdat)
+        if match:
+            # match, so K should be the 'non-blurred' version
+            # of the same shoe
+            Kdat["blur"] = "00"
+        elif flip_close:
+            # close-nonmatch, but flipped, so K should
+            # be the 'non-blurred' version of the opposite shoe
+            Kdat["blur"] = "00"
+            Kdat["foot"] = "L" if Qdat["foot"] == "R" else "R"
+        else:
+            # do far-nonmatches make sense?
+            while True:
+                Kdat = deconstruct(random.sample(Knames, 1)[0])
+                if Kdat["folder"] == Qdat["folder"] and Kdat["ID"] != Qdat["ID"]:
+                    break
+        Kdat["replicate"] = str(random.randint(1, 3))
+
+        row = {
+            "Q": reconstruct(Qdat),
+            "K": reconstruct(Kdat),
+            "match": match,
+            "config":"ESY",
             "blur": Qdat["blur"],
         }
         answer.append(row)
     return answer
 
 
+
+
 def driver(num_samples=100, use_farnon=True, target="./inputs.csv"):
-    base = open("./names.txt").readlines()
+    base = open("./datasets/names_ESY.txt").readlines()
     subtypes = ["K", "02", "04", "06", "08", "10", "12"]
     dset = {x: [] for x in subtypes}
     for name in map(lambda x: x.strip(), base):
@@ -77,14 +111,14 @@ def driver(num_samples=100, use_farnon=True, target="./inputs.csv"):
 
     res = []
     for x in subtypes[:-1]:
-        res += get_sample_list(
+        res += get_sample_list_nr(
             num_samples, dset[x], dset["K"], match=True, flip_close=False
         )
-        res += get_sample_list(
+        res += get_sample_list_nr(
             num_samples, dset[x], dset["K"], match=False, flip_close=True
         )
         if use_farnon:
-            res += get_sample_list(
+            res += get_sample_list_nr(
                 num_samples, dset[x], dset["K"], match=False, flip_close=False
             )
 

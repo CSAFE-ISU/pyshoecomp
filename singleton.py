@@ -1,3 +1,4 @@
+from _reconfig import Config, valid_keys
 from imdesc import ImageDesc
 from extractor import EXTRACTOR_MAP
 from corresponder import CORRESPONDER_MAP
@@ -82,11 +83,12 @@ def runner(
                 point = scor()
                 entry = {
                     "cmpid": cmpid,
+                    "config": Config.current,
                     "is_match": is_match,
                     "blur": blur,
                     "extractor": e,
-                    "q_pts":len(q.points),
-                    "k_pts":len(k.points),
+                    "q_pts": len(q.points),
+                    "k_pts": len(k.points),
                     "corresponder": c,
                     "alignment": a,
                     "metric": s,
@@ -109,6 +111,9 @@ def main():
     parser = argparse.ArgumentParser("cmp-single")
     parser.add_argument(
         "-i", "--id", dest="_id", required=True, help="ID of comparison"
+    )
+    parser.add_argument(
+        "-x", "--config", default="ESY", help="config to use: " + str(valid_keys)
     )
     parser.add_argument(
         "-k", "--k-path", dest="k_path", type=str, required=True, help="path of K"
@@ -158,6 +163,7 @@ def main():
     )
     parser.set_defaults(is_match=True)
     d = parser.parse_args()
+    Config.current = d.config
     result = runner(
         cmpid=d._id,
         k_path=d.k_path,

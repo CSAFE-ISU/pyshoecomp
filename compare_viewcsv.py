@@ -28,16 +28,13 @@ def check_csv(x):
             "match" in df.columns
         ), "input csv must have a column match with boolean values"
         assert (
-            "flip_k" in df.columns
-        ), "input csv must have a column flip_k with boolean values"
-        assert (
-            "close" in df.columns
-        ), "input csv must have a column close with boolean values"
+            "config" in df.columns
+        ), "input csv must have a column config"
         assert (
             "blur" in df.columns
         ), "input csv must have a column blur with strings 02 to 12"
         df["cmpid"] = np.arange(1, len(df) + 1)
-        sdf = df[["cmpid", "Q", "K", "match", "flip_k", "close", "blur"]]
+        sdf = df[["cmpid", "config", "Q", "K", "match", "blur"]]
         # sdf.to_csv(x.replace(".csv", "_names.csv"), index=False, header=True)
         return sdf.to_dict("records")
     else:
@@ -45,7 +42,7 @@ def check_csv(x):
 
 
 def singleton(
-    cmpid, q_path, k_path, is_match, flip_k, eps1, eps2, alpha, etor, aligner, output
+    cmpid, q_path, k_path, is_match, config, eps1, eps2, alpha, etor, aligner, output
 ):
     try:
         proc = subprocess.Popen(
@@ -59,7 +56,8 @@ def singleton(
                 "--k-path",
                 f"{k_path}",
                 "--match" if is_match else "--nonmatch",
-                "--flip-k" if flip_k else "--no-flip-k",
+                "--config",
+                str(config),
                 "--eps1",
                 str(eps1),
                 "--eps2",
@@ -91,7 +89,7 @@ def singleton(
         return False
 
 
-def runner(filelist, eps1, eps2, alpha, etor, aligner):
+def runner(filelist, eps1, eps2, alpha, etor, aligner, output):
     results = []
     with joblib.Parallel(n_jobs=4, backend="loky") as parallel:
         results = parallel(
@@ -100,7 +98,7 @@ def runner(filelist, eps1, eps2, alpha, etor, aligner):
                 q_path=x["Q"],
                 k_path=x["K"],
                 is_match=x["match"],
-                flip_k=x["flip_k"],
+                config=x["config"],
                 eps1=eps1,
                 eps2=eps2,
                 alpha=alpha,

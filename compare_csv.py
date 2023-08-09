@@ -9,6 +9,11 @@ import subprocess
 
 EXECUTABLE_PATH = sys.executable
 
+#
+from _reconfig import Config, valid_keys
+
+#
+
 
 def check_csv(x):
     if (
@@ -27,17 +32,12 @@ def check_csv(x):
         assert (
             "match" in df.columns
         ), "input csv must have a column match with boolean values"
-        assert (
-            "flip_k" in df.columns
-        ), "input csv must have a column flip_k with boolean values"
-        assert (
-            "close" in df.columns
-        ), "input csv must have a column close with boolean values"
+        assert "config" in df.columns, "input csv must have a column config"
         assert (
             "blur" in df.columns
         ), "input csv must have a column blur with strings 02 to 12"
         df["cmpid"] = np.arange(1, len(df) + 1)
-        sdf = df[["cmpid", "Q", "K", "match", "flip_k", "close", "blur"]]
+        sdf = df[["cmpid", "Q", "K", "match", "config", "blur"]]
         sdf.to_csv(x.replace(".csv", "_names.csv"), index=False, header=True)
         return sdf.to_dict("records")
     else:
@@ -49,8 +49,7 @@ def singleton(
     q_path,
     k_path,
     is_match,
-    flip_k,
-    close,
+    config,
     blur,
     eps1,
     eps2,
@@ -70,8 +69,8 @@ def singleton(
                 "--k-path",
                 f"{k_path}",
                 "--match" if is_match else "--nonmatch",
-                "--close" if close else "--not-close",
-                "--flip-k" if flip_k else "--no-flip-k",
+                "--config",
+                str(config),
                 "--blur",
                 str(blur),
                 "--eps1",
@@ -106,8 +105,7 @@ def output_header(output):
     column_names = [
         "cmpid",
         "is_match",
-        "close",
-        "blur",
+        "config",
         "extractor",
         "q_pts",
         "k_pts",
@@ -133,8 +131,7 @@ def runner(filelist, eps1, eps2, alpha, exclude, output):
                 q_path=x["Q"],
                 k_path=x["K"],
                 is_match=x["match"],
-                flip_k=x["flip_k"],
-                close=x["close"],
+                config=x["config"],
                 blur=x["blur"],
                 eps1=eps1,
                 eps2=eps2,

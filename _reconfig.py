@@ -14,7 +14,7 @@ SIFT_params = blah, blah
 
 """
 
-__all__ = ("Config",)
+__all__ = ("Config", "valid_keys")
 
 valid_keys = ("ESY", "SC1")
 

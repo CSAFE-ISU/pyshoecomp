@@ -34,6 +34,7 @@ plt.rcParams.update(
 RED = "#dc3220"
 BLUE = "#005ab5"
 
+from _reconfig import Config, valid_keys
 from imdesc import ImageDesc
 from extractor import EXTRACTOR_MAP
 from corresponder import CORRESPONDER_MAP
@@ -82,7 +83,7 @@ def runner(path):
 
 
 def main():
-    parser = argparse.ArgumentParser("view-single")
+    parser = argparse.ArgumentParser("view-points-pdf")
     parser.add_argument(
         "-i",
         "--path",
@@ -91,7 +92,11 @@ def main():
         help="path of image",
         default="/home/gautham/stuff/CSAFE/Shoeprints/presentations/2023-aug-23-IAI/images/LOL.tiff",
     )
+    parser.add_argument(
+        "-x", "--config", default="ESY", help="config to use: " + str(valid_keys)
+    )
     d = parser.parse_args()
+    Config.current = d.config
     runner(d.path)
 
 

@@ -35,6 +35,7 @@ plt.rcParams.update(
 YELLOW = "#fefe62"
 BLUE = "#d35fb7"
 
+from _reconfig import Config, valid_keys
 from imdesc import ImageDesc
 from extractor import EXTRACTOR_MAP
 from corresponder import CORRESPONDER_MAP
@@ -185,6 +186,7 @@ def runner(
     base = {
         "q": q,
         "k": k,
+        "config": Config.current,
         "corr": corr,
         "map_func": map_func,
         "is_match": is_match,
@@ -219,9 +221,12 @@ def runner(
 
 
 def main():
-    parser = argparse.ArgumentParser("view-single")
+    parser = argparse.ArgumentParser("view-cmp-pdf")
     parser.add_argument(
         "-i", "--id", dest="_id", required=True, help="ID of comparison"
+    )
+    parser.add_argument(
+        "-x", "--config", default="ESY", help="config to use: " + str(valid_keys)
     )
     parser.add_argument(
         "-k", "--k-path", dest="k_path", type=str, required=True, help="path of K"
@@ -264,6 +269,7 @@ def main():
     parser.add_argument("-o", "--output", default="./", help="output folder")
     parser.set_defaults(is_match=True, should_save=False)
     d = parser.parse_args()
+    Config.current = d.config
     result = runner(
         cmpid=d._id,
         k_path=d.k_path,
