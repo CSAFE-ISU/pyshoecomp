@@ -101,7 +101,6 @@ def runner(
     k_path,
     q_path,
     is_match,
-    flip_k,
     etor,
     aligner,
     epsilon1,
@@ -110,17 +109,8 @@ def runner(
     save,
     output,
 ):
-    k = ImageDesc.from_file(
-        k_path,
-        scale_factor=0.125,
-        outer_crop=20,
-        flip=flip_k,
-    )
-    q = ImageDesc.from_file(
-        q_path,
-        scale_factor=0.125,
-        outer_crop=20,
-    )
+    k = ImageDesc.from_file(k_path, is_match=True, is_k=True)
+    q = ImageDesc.from_file(q_path, is_match=True, is_k=False)
     result = []
     scor = None
 
@@ -186,9 +176,6 @@ def main():
     # is it a match?
     parser.add_argument("--match", dest="is_match", action="store_true")
     parser.add_argument("--nonmatch", dest="is_match", action="store_false")
-    # do I have to flip K?
-    parser.add_argument("--flip-k", dest="flip_k", action="store_true")
-    parser.add_argument("--no-flip-k", dest="flip_k", action="store_false")
     # eps
     parser.add_argument(
         "--eps1",
@@ -219,14 +206,13 @@ def main():
     )
     parser.add_argument("--save", dest="should_save", action="store_true")
     parser.add_argument("-o", "--output", default="./", help="output folder")
-    parser.set_defaults(is_match=True, flip_k=False, should_save=False)
+    parser.set_defaults(is_match=True, should_save=False)
     d = parser.parse_args()
     result = runner(
         cmpid=d._id,
         k_path=d.k_path,
         q_path=d.q_path,
         is_match=d.is_match,
-        flip_k=d.flip_k,
         epsilon1=d.eps1,
         epsilon2=d.eps2,
         alpha=d.alpha,

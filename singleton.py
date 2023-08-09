@@ -28,8 +28,6 @@ def runner(
     q_path,
     exclude,
     is_match=True,
-    flip_k=False,
-    close=False,
     blur="00",
     epsilon1=1.5,
     epsilon2=1.5,
@@ -37,14 +35,13 @@ def runner(
 ):
     k = ImageDesc.from_file(
         k_path,
-        scale_factor=0.125,
-        outer_crop=20,
-        flip=flip_k,
+        is_k=True,
+        is_match=is_match,
     )
     q = ImageDesc.from_file(
         q_path,
-        scale_factor=0.125,
-        outer_crop=20,
+        is_k=False,
+        is_match=is_match,
     )
     result = []
     etor = None
@@ -86,7 +83,6 @@ def runner(
                 entry = {
                     "cmpid": cmpid,
                     "is_match": is_match,
-                    "close": close,
                     "blur": blur,
                     "extractor": e,
                     "q_pts":len(q.points),
@@ -128,15 +124,9 @@ def main():
         required=True,
         help="path of resulting csv",
     )
-    # is it a match?
+    # is it a match? image preprocessing is affected by this
     parser.add_argument("--match", dest="is_match", action="store_true")
     parser.add_argument("--nonmatch", dest="is_match", action="store_false")
-    # is it a close nonmatch?
-    parser.add_argument("--close", dest="close", action="store_true")
-    parser.add_argument("--not-close", dest="close", action="store_false")
-    # do I have to flip K?
-    parser.add_argument("--flip-k", dest="flip_k", action="store_true")
-    parser.add_argument("--no-flip-k", dest="flip_k", action="store_false")
     # how much blur in Q?
     parser.add_argument("--blur", default="77", type=str, help="blur")
     # eps
@@ -166,7 +156,7 @@ def main():
         nargs="*",
         help="cases to exclude(all inclusive)",
     )
-    parser.set_defaults(is_match=True, flip_k=False)
+    parser.set_defaults(is_match=True)
     d = parser.parse_args()
     result = runner(
         cmpid=d._id,
@@ -174,9 +164,7 @@ def main():
         q_path=d.q_path,
         exclude=set(d.exclude),
         is_match=d.is_match,
-        close=d.close,
         blur=d.blur,
-        flip_k=d.flip_k,
         epsilon1=d.eps1,
         epsilon2=d.eps2,
         alpha=d.alpha,

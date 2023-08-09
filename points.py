@@ -55,7 +55,7 @@ SUBMAP = {k: v for k, v in EXTRACTOR_MAP.items() if "+" not in k}
 
 
 def runner(path):
-    k = ImageDesc.from_file(path, scale_factor=0.125, outer_crop=20, flip=False)
+    k = ImageDesc.from_file(path, is_k=True, is_match=True)
     fig, axs = plt.subplots(nrows=2, ncols=4, figsize=(12, 9))
     fig.suptitle("What kinds of interest points?")
     axs = axs.ravel()

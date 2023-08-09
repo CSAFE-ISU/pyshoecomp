@@ -8,6 +8,11 @@ import numpy as np
 import cliquematch
 import time
 
+# REMEMBER skimage warp IS WHACK
+# REMEMBER MAP_FUNC IS FROM K TO Q !!!
+# REMEMBER MAP_FUNC needs coordinates in (X, Y)
+# and you have them in (row, col) !!!!!!
+
 
 def centerify(x):
     cent = np.mean(x, axis=0)
@@ -76,7 +81,7 @@ class KabschMapping(AlignFunction):
         rotmat = np.matmul(np.matmul(V, rotmat), U.T)
 
         dx, dy = -np.matmul(K_cent, rotmat) + Q_cent
-        if np.isnan(rotmat[0,0]):
+        if np.isnan(rotmat[0, 0]):
             return lambda x: x
         theta = np.arccos(rotmat[0, 0])
         theta = -theta if rotmat[1, 0] < 0 else theta
@@ -146,13 +151,13 @@ def get_QK_correspondence(
 def main():
     k = ImageDesc.from_file(
         "../images/001351R_20180124_2_1_2_csafe_jekruse.tiff",
-        scale_factor=0.125,
-        outer_crop=20,
+        is_match=True,
+        is_k=True
     )
     q = ImageDesc.from_file(
         "../images/001351R_20180418_2_1_1_csafe_jekruse.tiff",
-        scale_factor=0.125,
-        outer_crop=20,
+        is_match=True,
+        is_k=False
     )
     corr = get_QK_correspondence(q, k, extractor_name="SIFT", epsilon=1.5)
     mapping = get_alignment_function(q, k, corr, method_name="polynomial3")

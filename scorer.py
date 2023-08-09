@@ -2,17 +2,8 @@ from imdesc import ImageDesc
 from extractor import EXTRACTOR_MAP
 from neuralnet import avg_ncc, avg_poc
 
-import warnings
-import skimage.transform as sktrans
 import skimage.feature as skfeat
 import numpy as np
-import cliquematch
-
-# REMEMBER skimage warp IS WHACK
-# REMEMBER MAP_FUNC IS FROM K TO Q !!!
-# REMEMBER MAP_FUNC needs coordinates in (X, Y)
-# and you have them in (row, col) !!!!!!
-
 
 class ScoringMethod:
     _extname_ = "<unk>"

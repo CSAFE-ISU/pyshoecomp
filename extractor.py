@@ -8,6 +8,9 @@ from numpy.typing import ArrayLike
 from skimage.feature import SIFT, ORB, CENSURE, corner_fast, corner_peaks
 import cv2
 
+# config
+from _reconfig import Config
+
 
 def uniqueify(f):
     def g(*args, **kwargs):
@@ -37,7 +40,7 @@ class SIFTExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor = SIFT(upsampling=1, sigma_in=0)
+        self.etor = SIFT(**Config.get_params("SIFT"))
 
     @uniqueify
     def __call__(self, img):
@@ -50,7 +53,7 @@ class ORBExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor = ORB(fast_threshold=0.7)
+        self.etor = ORB(**Config.get_params("ORB"))
 
     @uniqueify
     def __call__(self, img):
@@ -63,7 +66,7 @@ class CENSUREExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor = CENSURE()
+        self.etor = CENSURE(**Config.get_params("CENSURE"))
 
     @uniqueify
     def __call__(self, img):
@@ -76,7 +79,7 @@ class TomasiExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.params = dict(maxCorners=500, qualityLevel=0.2, minDistance=10)
+        self.params = dict(**Config.get_params("Shi-Tomasi"))
 
     @uniqueify
     def __call__(self, img):
@@ -90,7 +93,7 @@ class KAZEExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor = cv2.KAZE_create(threshold=0.03)
+        self.etor = cv2.KAZE_create(**Config.get_params("KAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -104,7 +107,7 @@ class AKAZEExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor = cv2.AKAZE_create(threshold=0.03)
+        self.etor = cv2.AKAZE_create(**Config.get_params("AKAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -118,10 +121,9 @@ class FastExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.peak_params = dict(min_distance=7)
-        self.params = dict(threshold=0.075)
         self.etor = lambda img: corner_peaks(
-            corner_fast(img, **self.params), **self.peak_params
+            corner_fast(img, **Config.get_params("FAST_params")),
+            **Config.get_params("FAST_peaks")
         )
 
     @uniqueify
@@ -135,8 +137,8 @@ class SIFT_ORB(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = ORB(fast_threshold=0.075)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = ORB(**Config.get_params("ORB"))
 
     @uniqueify
     def __call__(self, img):
@@ -152,8 +154,8 @@ class SIFT_CENSURE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = CENSURE()
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = CENSURE(**Config.get_params("CENSURE"))
 
     @uniqueify
     def __call__(self, img):
@@ -169,11 +171,10 @@ class SIFT_Fast(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.peak_params = dict(min_distance=7)
-        self.params = dict(threshold=0.075)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
         self.etor2 = lambda img: corner_peaks(
-            corner_fast(img, **self.params), **self.peak_params
+            corner_fast(img, **Config.get_params("FAST_params")),
+            **Config.get_params("FAST_peaks")
         )
 
     @uniqueify
@@ -189,8 +190,8 @@ class SIFT_KAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = cv2.KAZE_create(threshold=0.03)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = cv2.KAZE_create(**Config.get_params("KAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -206,8 +207,8 @@ class SIFT_AKAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = cv2.AKAZE_create(threshold=0.03)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = cv2.AKAZE_create(**Config.get_params("AKAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -223,13 +224,11 @@ class SIFT_Fast_KAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.peak_params = dict(min_distance=7)
-        self.params = dict(threshold=0.075)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
         self.etor2 = lambda img: corner_peaks(
-            corner_fast(img, **self.params), **self.peak_params
+            **Config.get_params("FAST_params"), **Config.get_params("FAST_peaks")
         )
-        self.etor3 = cv2.KAZE_create(threshold=0.03)
+        self.etor3 = cv2.KAZE_create(**Config.get_params("KAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -246,13 +245,12 @@ class SIFT_Fast_AKAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.peak_params = dict(min_distance=7)
-        self.params = dict(threshold=0.075)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
         self.etor2 = lambda img: corner_peaks(
-            corner_fast(img, **self.params), **self.peak_params
+            corner_fast(img, **Config.get_params("FAST_params")),
+            **Config.get_params("FAST_peaks")
         )
-        self.etor3 = cv2.AKAZE_create(threshold=0.03)
+        self.etor3 = cv2.AKAZE_create(**Config.get_params("AKAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -269,9 +267,9 @@ class SIFT_ORB_KAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = ORB(fast_threshold=0.075)
-        self.etor3 = cv2.KAZE_create(threshold=0.03)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = ORB(**Config.get_params("ORB"))
+        self.etor3 = cv2.KAZE_create(**Config.get_params("KAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -289,9 +287,9 @@ class SIFT_ORB_AKAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = ORB(fast_threshold=0.075)
-        self.etor3 = cv2.AKAZE_create(threshold=0.03)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = ORB(**Config.get_params("ORB"))
+        self.etor3 = cv2.AKAZE_create(**Config.get_params("AKAZE"))
 
     @uniqueify
     def __call__(self, img):
@@ -309,9 +307,9 @@ class SIFT_KAZE_AKAZE(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.etor1 = SIFT(upsampling=1, sigma_in=0)
-        self.etor2 = cv2.KAZE_create(threshold=0.03)
-        self.etor3 = cv2.AKAZE_create(threshold=0.03)
+        self.etor1 = SIFT(**Config.get_params("SIFT"))
+        self.etor2 = cv2.KAZE_create(**Config.get_params("KAZE"))
+        self.etor3 = cv2.AKAZE_create(**Config.get_params("AKAZE"))
 
     @uniqueify
     def __call__(self, img):
