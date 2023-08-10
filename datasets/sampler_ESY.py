@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-# create the sample pairs to compare
-# by randomly sampling from the list of available shoes
+# create the sample pairs to compare EverSpry data
 import sys
 import glob
 import os
 import random
 import pandas as pd
 import argparse
+
 
 def deconstruct(name):
     folder, raw = name.split("/")
@@ -56,11 +56,12 @@ def get_sample_list(num_samples, Qnames, Knames, match=True, flip_close=True):
             "Q": reconstruct(Qdat),
             "K": reconstruct(Kdat),
             "match": match,
-            "config":"ESY",
+            "config": "ESY",
             "blur": Qdat["blur"],
         }
         answer.append(row)
     return answer
+
 
 def get_sample_list_nr(num_samples, Qnames, Knames, match=True, flip_close=True):
     answer = []
@@ -89,16 +90,14 @@ def get_sample_list_nr(num_samples, Qnames, Knames, match=True, flip_close=True)
             "Q": reconstruct(Qdat),
             "K": reconstruct(Kdat),
             "match": match,
-            "config":"ESY",
+            "config": "ESY",
             "blur": Qdat["blur"],
         }
         answer.append(row)
     return answer
 
 
-
-
-def driver(num_samples=100, use_farnon=True, target="./inputs.csv"):
+def driver(target="./inputs.csv"):
     base = open("./datasets/names_ESY.txt").readlines()
     subtypes = ["K", "02", "04", "06", "08", "10", "12"]
     dset = {x: [] for x in subtypes}
@@ -117,10 +116,6 @@ def driver(num_samples=100, use_farnon=True, target="./inputs.csv"):
         res += get_sample_list_nr(
             num_samples, dset[x], dset["K"], match=False, flip_close=True
         )
-        if use_farnon:
-            res += get_sample_list_nr(
-                num_samples, dset[x], dset["K"], match=False, flip_close=False
-            )
 
     df = pd.DataFrame(res)
     df.to_csv(target, header=True, index=False)
@@ -130,28 +125,14 @@ def driver(num_samples=100, use_farnon=True, target="./inputs.csv"):
 def main():
     parser = argparse.ArgumentParser(prog="shoedata-sampler")
     parser.add_argument(
-        "-n",
-        "--num-samples",
-        default=100,
-        type=int,
-        help="number of samples per category",
-    )
-    parser.add_argument(
-        "-z",
-        "--use-far-nonmatches",
-        default=False,
-        dest="use_farnon",
-        help="if False, non matches are just the flipped images of the opposite shoe",
-    )
-    parser.add_argument(
         "-o",
         "--output",
-        default="./inputs.csv",
+        default="./full_ESY.csv",
         help="target csv filename to save samples",
     )
 
     d = parser.parse_args()
-    driver(num_samples=d.num_samples, use_farnon=d.use_farnon, target=d.output)
+    driver(target=d.output)
 
 
 if __name__ == "__main__":
