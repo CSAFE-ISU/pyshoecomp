@@ -124,7 +124,7 @@ def output_header(output):
 def runner(filelist, eps1, eps2, alpha, exclude, output):
     output_header(output)
     results = []
-    with joblib.Parallel(n_jobs=4, backend="loky") as parallel:
+    with joblib.Parallel(n_jobs=6, backend="loky") as parallel:
         results = parallel(
             joblib.delayed(singleton)(
                 cmpid=x["cmpid"],
@@ -169,7 +169,6 @@ def main():
         help="tolerance value for removing neighbor points",
     )
     parser.add_argument(
-        "-x",
         "--exclude",
         required=False,
         default=[],

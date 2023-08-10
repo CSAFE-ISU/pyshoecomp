@@ -94,7 +94,6 @@ def runner(
                     "metric": s,
                     "score": point,
                     "eps1": epsilon1,
-                    "eps2": epsilon2,
                     "alpha": alpha,
                 }
                 result.append(entry)
@@ -154,7 +153,6 @@ def main():
         help="tolerance value for removing neighbor points",
     )
     parser.add_argument(
-        "-x",
         "--exclude",
         required=False,
         default=[],

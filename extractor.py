@@ -226,7 +226,8 @@ class SIFT_Fast_KAZE(Extractor):
         super().__init__(*args, **kwargs)
         self.etor1 = SIFT(**Config.get_params("SIFT"))
         self.etor2 = lambda img: corner_peaks(
-            **Config.get_params("FAST_params"), **Config.get_params("FAST_peaks")
+            corner_fast(img, **Config.get_params("FAST_params")),
+            **Config.get_params("FAST_peaks")
         )
         self.etor3 = cv2.KAZE_create(**Config.get_params("KAZE"))
 
