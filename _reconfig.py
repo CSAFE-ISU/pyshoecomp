@@ -38,8 +38,8 @@ class ESYConfig:
         # related to interest points
         "SIFT": dict(upsampling=1, sigma_in=0),
         "ORB": dict(fast_threshold=0.075),
-        "CENSURE": dict(),
-        "Shi-Tomasi": dict(maxCorners=500, qualityLevel=0.2, min_distance=10),
+        "CENSURE": dict(non_max_threshold=0.1),
+        "Shi-Tomasi": dict(maxCorners=500, qualityLevel=0.2, minDistance=7),
         "KAZE": dict(threshold=0.03),
         "AKAZE": dict(threshold=0.03),
         "FAST_peaks": dict(min_distance=7),
@@ -62,10 +62,10 @@ class SC1Config:
         # related to interest points
         "SIFT": dict(upsampling=1, sigma_in=0),
         "ORB": dict(fast_threshold=0.075),
-        "CENSURE": dict(),
-        "Shi-Tomasi": dict(maxCorners=500, qualityLevel=0.2, min_distance=10),
-        "KAZE": dict(threshold=0.03),
-        "AKAZE": dict(threshold=0.03),
+        "CENSURE": dict(non_max_threshold=0.05),
+        "Shi-Tomasi": dict(maxCorners=500, qualityLevel=0.1, minDistance=7),
+        "KAZE": dict(threshold=0.001),
+        "AKAZE": dict(threshold=0.001),
         "FAST_peaks": dict(min_distance=7),
         "FAST_params": dict(threshold=0.075),
     }
