@@ -16,7 +16,7 @@ SIFT_params = blah, blah
 
 __all__ = ("Config", "valid_keys")
 
-valid_keys = ("ESY", "SC1")
+valid_keys = ("ESY", "SC1", "WV1")
 
 
 class ESYConfig:
@@ -46,19 +46,25 @@ class ESYConfig:
         "FAST_params": dict(threshold=0.075),
     }
 
-    @staticmethod
-    def get_params(name):
-        return ESYConfig.internal[name]
+    @classmethod
+    def get_params(cls, name):
+        return cls.internal[name]
 
 
 class SC1Config:
     internal = {
         # related to reading in Q images
-        "img_Q0": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False),
-        "img_Q1": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False),
+        "img_Q0": dict(
+            scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False
+        ),
+        "img_Q1": dict(
+            scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False
+        ),
         # related to reading in K images
         "img_K0": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=True),
-        "img_K1": dict(scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False),
+        "img_K1": dict(
+            scale=0.25, crop=((80, 40), (0, 80)), x_flip=False, y_flip=False
+        ),
         # related to interest points
         "SIFT": dict(upsampling=1, sigma_in=0),
         "ORB": dict(fast_threshold=0.075),
@@ -70,14 +76,38 @@ class SC1Config:
         "FAST_params": dict(threshold=0.075),
     }
 
-    @staticmethod
-    def get_params(name):
-        return SC1Config.internal[name]
+    @classmethod
+    def get_params(cls, name):
+        return cls.internal[name]
+
+
+class WV1Config:
+    internal = {
+        # related to reading in Q images
+        "img_Q0": dict(scale=0.125, crop=((0, 0), (0, 0)), x_flip=False, y_flip=False),
+        "img_Q1": dict(scale=0.125, crop=((0, 0), (0, 0)), x_flip=False, y_flip=False),
+        # related to reading in K images
+        "img_K0": dict(scale=0.125, crop=((0, 0), (0, 0)), x_flip=False, y_flip=True),
+        "img_K1": dict(scale=0.125, crop=((0, 0), (0, 0)), x_flip=False, y_flip=False),
+        # related to interest points
+        "SIFT": dict(upsampling=1, sigma_in=0),
+        "ORB": dict(fast_threshold=0.1),
+        "CENSURE": dict(non_max_threshold=0.05),
+        "Shi-Tomasi": dict(maxCorners=500, qualityLevel=0.1, minDistance=7),
+        "KAZE": dict(threshold=0.007),
+        "AKAZE": dict(threshold=0.007),
+        "FAST_peaks": dict(min_distance=7),
+        "FAST_params": dict(threshold=0.3),
+    }
+
+    @classmethod
+    def get_params(cls, name):
+        return cls.internal[name]
 
 
 class Config:
     current = "ESY"
-    mappings = {"ESY": ESYConfig, "SC1": SC1Config}
+    mappings = {"ESY": ESYConfig, "SC1": SC1Config, "WV1": WV1Config}
 
     @staticmethod
     def get_params(name):
