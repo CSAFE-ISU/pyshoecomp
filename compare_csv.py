@@ -104,8 +104,9 @@ def singleton(
 def output_header(output):
     column_names = [
         "cmpid",
-        "is_match",
         "config",
+        "is_match",
+        "blur",
         "extractor",
         "q_pts",
         "k_pts",
@@ -114,7 +115,6 @@ def output_header(output):
         "metric",
         "score",
         "eps1",
-        "eps2",
         "alpha",
     ]
     df = pd.DataFrame([], columns=column_names)
