@@ -92,11 +92,4 @@ class CliqueSize(ScoringMethod):
         return self.corr["size"]
 
 
-class DummyTime(ScoringMethod):
-    _extname_ = "time"
-
-    def __call__(self):
-        return self.corr["time"]
-
-
 SCORINGMETHOD_MAP = {x._extname_: x for x in ScoringMethod.__subclasses__()}
