@@ -13,7 +13,7 @@ class AppContext(ApplicationContext):
     """
 
     def run(self):
-        self.window = SelWindow()
+        self.window = SelWindow(ctx=self)
         self.window.setWindowTitle("shoecomp v0.0.0")
         self.window.show()
         return self.app.exec_()

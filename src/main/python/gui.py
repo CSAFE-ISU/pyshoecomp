@@ -67,7 +67,7 @@ class PercentageWorker(qtcore.QObject):
 
 
 class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, parent=None, width=12, height=9, dpi=200):
+    def __init__(self, parent=None, width=14, height=12, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         super(MplCanvas, self).__init__(fig)
 
@@ -122,8 +122,9 @@ class SelWindow(qtgui.QMainWindow):
     * Browse for Crime Scene TIFF, allow corner extraction, enter DPI if required
     """
 
-    def __init__(self):
+    def __init__(self, ctx):
         super(qtgui.QMainWindow, self).__init__()
+        self.ctx = ctx
         self.gripSize = 16
         self.grips = []
         for i in range(4):
@@ -253,6 +254,7 @@ class SelWindow(qtgui.QMainWindow):
     def post_viz(self):
         if self.success:
             self.dbg.setText("success")
+            self.sinfo["loader"] = lambda x: self.ctx.get_resource(x)
             succ = SuccessDialog(sinfo=self.sinfo, parent=self)
             succ.show()
             self.reset_everything()
