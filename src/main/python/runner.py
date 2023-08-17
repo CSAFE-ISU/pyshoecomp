@@ -30,4 +30,5 @@ def runner(window, worker):
         worker.percentage += 1
         time.sleep(0.15)
 
+    window.success = True
     worker.finish()

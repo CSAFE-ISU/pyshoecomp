@@ -4,13 +4,25 @@
     Select source TIFF files, output target folder, and
     toggle advanced options if needed.
 """
+import matplotlib
+
+matplotlib.use("Qt5Agg")
+
+from matplotlib.backends.backend_qt5agg import (
+    FigureCanvasQTAgg,
+    NavigationToolbar2QT as NavigationToolbar,
+)
+from matplotlib.figure import Figure
 
 import PyQt5.QtWidgets as qtgui
 import PyQt5.QtCore as qtcore
 import threading
 import time
+import gc
 
 from runner import runner
+from presenter import write_plot
+
 
 class PercentageWorker(qtcore.QObject):
     # https://stackoverflow.com/questions/66265219
@@ -51,6 +63,52 @@ class PercentageWorker(qtcore.QObject):
         self.finished.emit()
 
 
+class MplCanvas(FigureCanvasQTAgg):
+    def __init__(self, parent=None, width=12, height=9, dpi=200):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        super(MplCanvas, self).__init__(fig)
+
+
+class SuccessDialog(qtgui.QDialog):
+    # https://www.pythonguis.com/tutorials/plotting-matplotlib/
+    def __init__(self, sinfo, parent):
+        super().__init__(parent)
+
+        self.setWindowTitle("Shoeprint Comparison")
+        sc = MplCanvas(parent=self)
+        write_plot(sc.figure, sinfo)
+
+        toolbar = NavigationToolbar(sc, self)
+
+        layout = qtgui.QVBoxLayout()
+        layout.addWidget(sc)
+        layout.addWidget(toolbar)
+        self.setLayout(layout)
+
+
+class FailureDialog(qtgui.QDialog):
+    def __init__(self, parent, message=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Failed.")
+        if message is None:
+            message = "comparison failed."
+        else:
+            message = str(message)
+
+        self.buttonBox = qtgui.QDialogButtonBox(
+            qtgui.QDialogButtonBox.Abort | qtgui.QDialogButtonBox.Ok
+        )
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = qtgui.QVBoxLayout()
+        message = qtgui.QLabel(message)
+        self.layout.addWidget(message)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+
+
 class SelWindow(qtgui.QMainWindow):
     """
     PyQt Window Subclass with members for following options:
@@ -68,8 +126,9 @@ class SelWindow(qtgui.QMainWindow):
             grip.resize(self.gripSize, self.gripSize)
             self.grips.append(grip)
 
-        self.done = False
         # self.setFixedSize(1020, 620)
+        self.success = False
+        self.sinfo = None
 
         self.central = qtgui.QWidget()
 
@@ -88,11 +147,6 @@ class SelWindow(qtgui.QMainWindow):
         self.browse2 = qtgui.QPushButton("Select File")
         self.browse2.clicked.connect(self.listener)
 
-        self.targ_dir = qtgui.QLineEdit()
-        self.targ_dir.setDisabled(True)
-        self.browse3 = qtgui.QPushButton("Browse")
-        self.browse3.clicked.connect(self.listener)
-
         self.clique_heur = qtgui.QCheckBox("Use Heuristic for Alignment (faster)")
         self.clique_heur.setChecked(False)
         self.clique_eps = qtgui.QLineEdit("0.5")
@@ -109,10 +163,6 @@ class SelWindow(qtgui.QMainWindow):
         self.layout.addWidget(qtgui.QLabel("<b> Crime Scene: </b> "), 4, 0)
         self.layout.addWidget(self.file2, 4, 1)
         self.layout.addWidget(self.browse2, 4, 2)
-
-        self.layout.addWidget(qtgui.QLabel("<b> Target Folder: </b>"), 8, 0)
-        self.layout.addWidget(self.targ_dir, 8, 1)
-        self.layout.addWidget(self.browse3, 8, 2)
 
         self.layout.addWidget(qtgui.QLabel("<b> Advanced Options: </b>"), 9, 0)
         self.layout.addWidget(self.clique_heur, 9, 1)
@@ -152,8 +202,6 @@ class SelWindow(qtgui.QMainWindow):
             self.set_file(1)
         elif sender == self.browse2:
             self.set_file(2)
-        elif sender == self.browse3:
-            self.set_file(3)
         elif sender == self.go_button:
             self.done_button()
 
@@ -173,24 +221,40 @@ class SelWindow(qtgui.QMainWindow):
             fl_text = qtgui.QFileDialog.getOpenFileName(
                 parent=self, caption="Select Shoeprint TIFF file", filter="*.tiff"
             )
-        elif file_no == 3:
-            fl = self.targ_dir
-            fl_text = [
-                qtgui.QFileDialog.getExistingDirectory(
-                    caption="Select Target Directory for Report"
-                )
-            ]
-
         if fl_text[0] != "":
             fl.setText(fl_text[0])
 
     def done_button(self):
-        self.done = True
         worker = PercentageWorker()
         worker.percentageChanged.connect(self.progress.setValue)
         worker.txtChanged.connect(self.dbg.setText)
+        worker.finished.connect(self.post_viz)
+        self.progress.setValue(0)
+        self.dbg.setText("")
         threading.Thread(
             target=runner,
             kwargs=dict(window=self, worker=worker),
             daemon=True,
         ).start()
+
+    def post_viz(self):
+        if self.success:
+            self.dbg.setText("success")
+            print(self.sinfo)
+            succ = SuccessDialog(sinfo=self.sinfo, parent=self)
+            succ.show()
+            self.reset_everything()
+        else:
+            self.dbg.setText("failed")
+            fail = FailureDialog(self, sinfo)
+            if fail.exec_():
+                self.reset_everything()
+            else:
+                self.close()
+
+    def reset_everything(self):
+        self.success = False
+        self.sinfo = None
+        self.progress.setValue(0)
+        self.dbg.setText("")
+        gc.collect()
