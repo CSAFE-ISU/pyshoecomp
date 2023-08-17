@@ -22,6 +22,9 @@ import gc
 
 from runner import runner
 from presenter import write_plot
+from aligner import ALIGNER_MAP
+from extractor import EXTRACTOR_MAP
+from scorer import SCORINGMETHOD_MAP
 
 
 class PercentageWorker(qtcore.QObject):
@@ -102,8 +105,10 @@ class FailureDialog(qtgui.QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
+        self.setFixedSize(400, 300)
         self.layout = qtgui.QVBoxLayout()
         message = qtgui.QLabel(message)
+        message.setWordWrap(True)
         self.layout.addWidget(message)
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
@@ -151,8 +156,12 @@ class SelWindow(qtgui.QMainWindow):
         self.clique_heur.setChecked(False)
         self.clique_eps = qtgui.QLineEdit("0.5")
         self.clique_alpha = qtgui.QLineEdit("5.0")
+        self.align_options = qtgui.QComboBox()
+        self.align_options.addItems(list(ALIGNER_MAP.keys()))
         self.score_options = qtgui.QComboBox()
-        self.score_options.addItems(["clique_fraction", "ImageNCC"])
+        self.score_options.addItems(list(SCORINGMETHOD_MAP.keys()))
+        self.point_options = qtgui.QComboBox()
+        self.point_options.addItems(list(EXTRACTOR_MAP.keys()))
 
         self.layout = qtgui.QGridLayout()
 
@@ -178,12 +187,16 @@ class SelWindow(qtgui.QMainWindow):
             1,
         )
         self.layout.addWidget(self.clique_alpha, 11, 2)
-        self.layout.addWidget(qtgui.QLabel("Similarity Score: "), 12, 1)
-        self.layout.addWidget(self.score_options, 12, 2)
-        self.layout.addWidget(self.go_button, 13, 0, 1, 4)
-        self.layout.addWidget(qtgui.QLabel("Progress: "), 14, 0)
-        self.layout.addWidget(self.progress, 14, 1)
-        self.layout.addWidget(self.dbg, 14, 2, 1, 2)
+        self.layout.addWidget(qtgui.QLabel("Interest Points: "), 12, 1)
+        self.layout.addWidget(self.point_options, 12, 2)
+        self.layout.addWidget(qtgui.QLabel("Alignment Transform: "), 13, 1)
+        self.layout.addWidget(self.align_options, 13, 2)
+        self.layout.addWidget(qtgui.QLabel("Similarity Score: "), 14, 1)
+        self.layout.addWidget(self.score_options, 14, 2)
+        self.layout.addWidget(self.go_button, 15, 1, 2, 2)
+        self.layout.addWidget(qtgui.QLabel("Progress: "), 20, 0)
+        self.layout.addWidget(self.progress, 20, 1)
+        self.layout.addWidget(self.dbg, 20, 2, 1, 2)
 
         self.central.setLayout(self.layout)
         self.setCentralWidget(self.central)
@@ -240,13 +253,12 @@ class SelWindow(qtgui.QMainWindow):
     def post_viz(self):
         if self.success:
             self.dbg.setText("success")
-            print(self.sinfo)
             succ = SuccessDialog(sinfo=self.sinfo, parent=self)
             succ.show()
             self.reset_everything()
         else:
             self.dbg.setText("failed")
-            fail = FailureDialog(self, sinfo)
+            fail = FailureDialog(self, self.sinfo.get("message"))
             if fail.exec_():
                 self.reset_everything()
             else:
