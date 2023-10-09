@@ -21,6 +21,10 @@ def uniqueify(f):
     return g
 
 
+def cleaned_vstack(arrlist):
+    return np.vstack([x for x in arrlist if len(x) > 0])
+
+
 class Extractor:
     _extname_ = "<none>"
 
@@ -146,7 +150,7 @@ class SIFT_ORB(Extractor):
         self.etor2.detect(img)
         kp1 = self.etor1.keypoints
         kp2 = self.etor2.keypoints
-        return np.vstack((kp2, kp1))
+        return cleaned_vstack((kp2, kp1))
 
 
 class SIFT_CENSURE(Extractor):
@@ -163,7 +167,7 @@ class SIFT_CENSURE(Extractor):
         self.etor2.detect(img)
         kp1 = self.etor1.keypoints
         kp2 = self.etor2.keypoints
-        return np.vstack((kp2, kp1))
+        return cleaned_vstack((kp2, kp1))
 
 
 class SIFT_Fast(Extractor):
@@ -182,7 +186,7 @@ class SIFT_Fast(Extractor):
         self.etor1.detect(img)
         kp1 = self.etor1.keypoints
         kp2 = self.etor2(img)
-        return np.vstack((kp2, kp1))
+        return cleaned_vstack((kp2, kp1))
 
 
 class SIFT_KAZE(Extractor):
@@ -199,7 +203,7 @@ class SIFT_KAZE(Extractor):
         kp1 = self.etor1.keypoints
         kp2 = self.etor2.detect(img)
         kp2 = np.array([k.pt[::-1] for k in kp2])
-        return np.vstack((kp2, kp1))
+        return cleaned_vstack((kp2, kp1))
 
 
 class SIFT_AKAZE(Extractor):
@@ -216,7 +220,7 @@ class SIFT_AKAZE(Extractor):
         kp1 = self.etor1.keypoints
         kp2 = self.etor2.detect(img)
         kp2 = np.array([k.pt[::-1] for k in kp2])
-        return np.vstack((kp2, kp1))
+        return cleaned_vstack((kp2, kp1))
 
 
 class SIFT_Fast_KAZE(Extractor):
@@ -238,7 +242,7 @@ class SIFT_Fast_KAZE(Extractor):
         kp2 = self.etor2(img)
         kp3 = self.etor3.detect(img)
         kp3 = np.array([k.pt[::-1] for k in kp3])
-        return np.vstack((kp3, kp2, kp1))
+        return cleaned_vstack((kp3, kp2, kp1))
 
 
 class SIFT_Fast_AKAZE(Extractor):
@@ -260,7 +264,7 @@ class SIFT_Fast_AKAZE(Extractor):
         kp2 = self.etor2(img)
         kp3 = self.etor3.detect(img)
         kp3 = np.array([k.pt[::-1] for k in kp3])
-        return np.vstack((kp3, kp2, kp1))
+        return cleaned_vstack((kp3, kp2, kp1))
 
 
 class SIFT_ORB_KAZE(Extractor):
@@ -280,7 +284,7 @@ class SIFT_ORB_KAZE(Extractor):
         kp2 = self.etor2.keypoints
         kp3 = self.etor3.detect(img)
         kp3 = np.array([k.pt[::-1] for k in kp3])
-        return np.vstack((kp3, kp2, kp1))
+        return cleaned_vstack((kp3, kp2, kp1))
 
 
 class SIFT_ORB_AKAZE(Extractor):
@@ -300,7 +304,7 @@ class SIFT_ORB_AKAZE(Extractor):
         kp2 = self.etor2.keypoints
         kp3 = self.etor3.detect(img)
         kp3 = np.array([k.pt[::-1] for k in kp3])
-        return np.vstack((kp3, kp2, kp1))
+        return cleaned_vstack((kp3, kp2, kp1))
 
 
 class SIFT_KAZE_AKAZE(Extractor):
@@ -320,7 +324,7 @@ class SIFT_KAZE_AKAZE(Extractor):
         kp2 = np.array([k.pt[::-1] for k in kp2])
         kp3 = self.etor3.detect(img)
         kp3 = np.array([k.pt[::-1] for k in kp3])
-        return np.vstack((kp3, kp2, kp1))
+        return cleaned_vstack((kp3, kp2, kp1))
 
 
 EXTRACTOR_MAP = {x._extname_: x for x in Extractor.__subclasses__()}
