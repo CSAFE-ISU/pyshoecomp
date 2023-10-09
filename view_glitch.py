@@ -97,6 +97,8 @@ def show_overall(cmpid, base, save, output):
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(12, 9), sharex=True, sharey=True)
     Q = base["q"]
     K = base["k"]
+    print(Q.img.shape)
+    print(K.img.shape)
     aligner = base["alignment"]
     corr = base["corr"]
     map_func = base["map_func"]
@@ -127,10 +129,20 @@ def show_overall(cmpid, base, save, output):
         K_corr = corr["K"]
         inds = np.ravel(np.array(list(itertools.combinations(range(len(Q_corr)), 2))))
         q_lines, *_ = axs[0].plot(
-            Q_corr[inds, 1], Q_corr[inds, 0], color=BLUE, alpha=1, linewidth=0.5
+            Q_corr[inds, 1],
+            Q_corr[inds, 0],
+            color=BLUE,
+            alpha=0.5,
+            linewidth=0.25,
+            linestyle="--",
         )
         k_lines, *_ = axs[1].plot(
-            K_corr[inds, 1], K_corr[inds, 0], color=BLUE, alpha=1, linewidth=0.5
+            K_corr[inds, 1],
+            K_corr[inds, 0],
+            color=BLUE,
+            alpha=0.5,
+            linewidth=0.25,
+            linestyle="--",
         )
 
     axs[0].set_title("Questioned Impression")

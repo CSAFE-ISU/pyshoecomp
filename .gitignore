@@ -1,7 +1,12 @@
 # ignore simulation results
+Makefile
+*.tiff
+*.json
 plots/*
 r3/*
 r2/*
+show/*
+results4/*
 results/*
 report/*
 report

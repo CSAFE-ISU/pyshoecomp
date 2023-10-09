@@ -75,10 +75,14 @@ def runner(path):
 
     for i, (k, v) in enumerate(SUBMAP.items()):
         axs[i + 1].imshow(zz, cmap="gray")
+        print(k)
         etor = v()
-        pts = etor(zz)
-        axs[i + 1].scatter(x=pts[:, 1], y=pts[:, 0], c=BLUE, marker="o", s=5, alpha=1)
-        axs[i + 1].set_title(k)
+        try:
+            pts = etor(zz)
+            axs[i + 1].scatter(x=pts[:, 1], y=pts[:, 0], c=BLUE, marker="o", s=5, alpha=1)
+            axs[i + 1].set_title(k)
+        except Exception:
+            continue
     fig.savefig(f"plots/pts-1.pdf", format="pdf")
 
 
