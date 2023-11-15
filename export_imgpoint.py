@@ -1,5 +1,7 @@
 import argparse
 import json
+import os
+import skimage.io as skio
 
 #
 from _reconfig import Config, valid_keys
@@ -22,6 +24,9 @@ def runner(path, ip, out):
     }
     with open(out, "w") as f:
         json.dump(result, f, indent=2)
+
+    imgpath = os.path.splitext(out)[0] + ".png"
+    skio.imsave(imgpath, k.img)
 
 
 def main():
